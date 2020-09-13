@@ -1,2 +1,2 @@
-# Statistical-Analysis
-Linear regression model and examination of statistics on datasets
+# Statistical-Analyses
+Linear regression models and examination of statistics on datasets
