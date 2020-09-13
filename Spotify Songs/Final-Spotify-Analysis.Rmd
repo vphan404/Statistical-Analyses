@@ -1,0 +1,103 @@
+---
+title: ""
+author: ""
+date: "12/11/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+library(viridis)
+library(readr)
+spotifyCSV <- read_csv(file="SpotifyAudioFeaturesApril2019.csv")
+
+colnames(spotifyCSV) <- make.names(colnames(spotifyCSV))
+spotifyCSVnums = spotifyCSV[,sapply(X = spotifyCSV,FUN = class) == "numeric"]
+```
+
+
+
+```{r summary}
+
+summary(spotifyCSV)
+#write.csv(summary(spotifyCSV), file = "myfile.csv")
+```
+
+
+
+```{r Pairs Plot, echo=FALSE, include=FALSE}
+png('pairsSpotify2.png', width = 1280, height = 1280)
+pairs(spotifyCSV[,sapply(X = spotifyCSV,FUN = class) == "numeric"],
+  pch = ".",
+  col = viridis(8),
+  gap = 2/10)
+dev.off()
+```
+
+```{r Highest Correlation Between Variables with Popularity}
+round(sort(cor(
+  x = spotifyCSVnums,
+  use = "pairwise.complete.obs"
+)[,"popularity"]),4)
+```
+
+```{r Highest Correlation Between Variables}
+round(cor(
+  x = spotifyCSVnums,
+  use = "pairwise.complete.obs"), 4)
+
+```
+
+```{r, results='asis'}
+lm_1 <- lm(
+  formula = popularity ~. ,
+  data = spotifyCSVnums
+)
+summary(lm_1)
+```
+
+```{r}
+lm2 = subset(spotifyCSVnums, select = -c(speechiness,duration_ms, key)) #key
+
+lm_2 <- lm(
+  formula = popularity ~.,
+  data = lm2
+)
+summary(lm_2)
+```
+
+```{r}
+#lm3 = subset(spotifyCSVnums, select = c()) #key
+
+lm_3 <- lm(
+  formula = popularity ~ key,
+  data = spotifyCSVnums
+)
+summary(lm_3)
+```
+
+```{r}
+AIC(lm_1, lm_2, lm_3)
+BIC(lm_1, lm_2, lm_3)
+```
+```{r}
+
+par(mfrow = c(2,2))
+plot(lm_3,pch = ".",col = viridis(16))
+
+
+
+lm3$residuals <- lm3$popularity - predict(lm_3 ,newdata = lm3)
+
+hist(
+  x = lm3$residuals,
+  col = viridis(32),
+  # breaks = "Scott",
+  probability = TRUE
+)
+
+```
+
+
+
+
